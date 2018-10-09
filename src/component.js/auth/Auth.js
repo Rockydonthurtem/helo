@@ -1,19 +1,28 @@
 import React, { Component } from "react";
 import axios from "axios";
+import Dashboard from "../dashboard/Dashboard";
 
 class Auth extends Component {
   constructor() {
     super();
     this.state = {
       username: " ",
-      password: " "
+      password: " ",
+      users: []
     };
     this.handleNewUser = this.handleNewUser.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
   }
-  componentDidMount() {}
+  componentDidMount() {
+    axios.get(`/api/getUser`).then(response => {
+      console.log(response);
+      this.setState({ users: response });
+    });
+  }
+
   handleNewUser(username, password) {
     axios
-      .post(`/api/postNewUser?username={username}&password={password}`)
+      .post(`/api/register?username=${username}&password=${password}`)
       .then(response => {
         console.log(response.date);
         this.setState({
@@ -22,7 +31,24 @@ class Auth extends Component {
         });
       });
   }
+  handleLogin(username, password) {
+    axios
+      .post(`/api/login`, {
+        username: this.state.username,
+        password: this.state.password
+      })
+      .then(response => {
+        console.log(response);
+        this.setState({
+          username: response.data.username,
+          password: response.data.password
+        });
+      });
+  }
+
   render() {
+    console.log(this.state);
+    console.log(this.props);
     return (
       <div>
         <input
@@ -37,8 +63,8 @@ class Auth extends Component {
           placeholder=" enter password"
           type="text"
         />
-        <button>Login</button>
-        <button>Register</button>
+        {/* <button onClick>Login</button> */}
+        <Dashboard register={this.handleNewUser} login={this.handleLogin} />
       </div>
     );
   }
